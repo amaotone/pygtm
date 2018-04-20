@@ -29,7 +29,7 @@ class GTM(BaseEstimator, TransformerMixin):
         self.phi = np.exp(-d / (2 * self.sigma))
         
         # init W and beta from PCA
-        pca = PCA(n_components=self.n_components + 1)
+        pca = PCA(n_components=self.n_components + 1, random_state=self.random_state)
         pca.fit(X)
         self.W = np.linalg.pinv(self.phi).dot(self.z).dot(pca.components_[:self.n_components, :])
         
