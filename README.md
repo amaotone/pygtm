@@ -2,6 +2,9 @@
 
 A python implementation of Generative Topographic Mapping.
 
+**This is beta release.**
+For example, this project has no test as you can see.
+
 ## Requirements
 
 - numpy
