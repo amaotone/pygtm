@@ -20,10 +20,16 @@ The pygtm package inherits scikit-learn classes.
 
 ```python
 from pygtm import GTM
-from sklearn.datasets import load_digits
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
 
-digits = load_digits()
-embddding = GTM().fit_transform(digits.data)
+iris = load_iris()
+model = make_pipeline(
+    StandardScaler(),
+    GTM(n_components=2)
+)
+embedding = model.fit_transform(iris.data)
 ```
 
 ## References
