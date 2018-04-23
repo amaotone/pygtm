@@ -1,3 +1,5 @@
+![pypi version](https://img.shields.io/pypi/v/pygtm.svg)
+
 # PyGTM
 
 A python implementation of Generative Topographic Mapping.
