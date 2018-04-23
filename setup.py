@@ -8,9 +8,10 @@ with open('LICENSE') as f:
 
 setup(
     name='pygtm',
-    version='0.0.1',
+    version='0.0.2',
     description='A python implementation of Generative Topographic Mapping.',
     long_description=readme,
+    long_description_content_type='text/markdown',
     author='Amane Suzuki',
     author_email='amane.suzu@gmail.com',
     install_requires=['numpy', 'scipy', 'scikit-learn'],
