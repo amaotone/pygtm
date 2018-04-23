@@ -5,7 +5,7 @@ from sklearn.decomposition import PCA
 
 
 class GTM(BaseEstimator, TransformerMixin):
-    def __init__(self, n_components=2, n_rbfs=10, sigma=1, alpha=1e-3, n_grids=20,
+    def __init__(self, n_components=2, n_rbfs=10, sigma=1, alpha=1e-3, n_grids=20, method='mean',
                  max_iter=10, tol=1e-3, random_state=None, verbose=False):
         self.n_components = n_components
         self.n_rbfs = n_rbfs
@@ -13,9 +13,11 @@ class GTM(BaseEstimator, TransformerMixin):
         self.alpha = alpha
         self.n_grids = n_grids
         self.max_iter = max_iter
+        self.method = method
         self.tol = tol
         self.random_state = random_state
         self.verbose = verbose
+        self.prev_likelihood_ = -float('inf')
     
     def get_lattice_points(self, n_grid):
         grid = np.meshgrid(*[np.linspace(-1, 1, n_grid + 1) for _ in range(self.n_components)])
@@ -61,22 +63,27 @@ class GTM(BaseEstimator, TransformerMixin):
                 self.phi.T.dot(R).dot(X))
             
             self.beta = X.size / (cdist(self.phi.dot(self.W), X, 'sqeuclidean') * R).sum()
+            
+            likelihood = self.likelihood(X)
+            diff = abs(likelihood - self.prev_likelihood_) / X.shape[0]
+            self.prev_likelihood_ = likelihood
             if self.verbose:
-                print('cycle #{}: {}'.format(i + 1, self.likelihood(X)))
+                print('cycle #{}: likelihood: {:.3f}, diff: {:.3f}'.format(i + 1, likelihood, diff))
+            
+            if diff < self.tol:
+                if self.verbose:
+                    print('converged.')
+                break
     
-    def transform(self, X, y=None, method='mean'):
-        assert method in ('mean', 'mode')
-        if method == 'mean':
+    def transform(self, X, y=None):
+        assert self.method in ('mean', 'mode')
+        if self.method == 'mean':
             R = self.responsibility(X)
             return self.z.T.dot(R).T
-        elif method == 'mode':
+        elif self.method == 'mode':
             return self.z[self.responsibility(X).argmax(axis=0), :]
     
-    def inverse_transform(self, X):
-        d = cdist(X, self.rbfs, 'sqeuclidean')
+    def inverse_transform(self, Xt):
+        d = cdist(Xt, self.rbfs, 'sqeuclidean')
         phi = np.exp(-d / (2 * self.sigma))
         return phi.dot(self.W)
-    
-    def fit_transform(self, X, y=None, method='mean', **fit_params):
-        self.fit(X, y, **fit_params)
-        return self.transform(X, y, method=method)
