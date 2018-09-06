@@ -74,6 +74,7 @@ class GTM(BaseEstimator, TransformerMixin):
                 if self.verbose:
                     print('converged.')
                 break
+        return self
     
     def transform(self, X, y=None):
         assert self.method in ('mean', 'mode')
